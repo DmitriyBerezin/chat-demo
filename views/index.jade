@@ -1,5 +1,20 @@
+mixin message(user, msg, time)
+	li.message
+		div.message-user= user
+		div.message-text= msg
+		div.message-time= time
+
+
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+	h1 Welcome to the chat-demo
+
+	div.container
+		ul.messages-list
+			+message('user1', 'Message1', 'time1')
+			+message('user2', 'Message2', 'time2')
+			+message('user3', 'Message3', 'time3')
+
+		input(type='text', placeholder='Input a message').message-input
+		button(type='button').btn-send Send
