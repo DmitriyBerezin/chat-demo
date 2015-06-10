@@ -40,12 +40,12 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 	function onSocketMessage(evt) {
 		var data = JSON.parse(evt.data);
 
-		console.log(data);
+		data.date = moment(data.date).format('MMMM Do YYYY, h:mm:ss a');
 		if (data.type === MessageTypeCode.MESSAGE) {
-			renderMessage(data);
+			renderMessage(tmplMessage(data), 'message');
 		}
 		else if (data.type === MessageTypeCode.NOTIFICATION) {
-			renderNotification(data);
+			renderMessage(tmplNotification(data), 'notif');
 		}
 	}
 
@@ -59,23 +59,16 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 		socket.send(JSON.stringify(message));
 
 		txtMessage.value = '';
+		txtMessage.focus();
 	}
 
-	function renderMessage(message) {
-		var html = tmplMessage(message),
-			li = document.createElement('li');
+	function renderMessage(html, className) {
+		var li = document.createElement('li');
 
-		li.className = 'message';
+		li.className = className;
 		li.innerHTML = html;
 		listMsg.appendChild(li);
-	}
-
-	function renderNotification(notification) {
-		var html = tmplNotification(notification),
-			li = document.createElement('li');
-
-		li.className = 'notif';
-		li.innerHTML = html;
-		listMsg.appendChild(li);
+		// Scroll to the bottom of list
+		listMsg.scrollTop = listMsg.scrollHeight;
 	}
 });
