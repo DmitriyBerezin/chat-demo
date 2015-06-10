@@ -1,13 +1,17 @@
 
 var MessageTypeCode = {
 	MESSAGE: 'msg',
-	NOTIFICATION: 'notif'
+	TYPING_START: 'start_typing',
+	TYPING_STOP: 'stop_typing',
+	JOIN: 'join',
+	LEAVE: 'leave'
 };
 
 document.addEventListener('DOMContentLoaded', function(evt) {
 	var btnSend = document.getElementById('btnSend'),
 		listMsg = document.querySelector('.messages-list'),
 		txtMessage = document.getElementById('txtMessage'),
+		isTyping = false,
 		socket;
 
 	if (!('WebSocket' in window || 'MozWebSocket' in window)) {
@@ -34,7 +38,9 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 
 	function onSocketOpen(evt) {
 		// We are ready for sending messages
-		btnSend.addEventListener('click', onBtnSendClick);	
+		btnSend.addEventListener('click', onBtnSendClick);
+		txtMessage.addEventListener('keypress', onKeyPress);
+		txtMessage.addEventListener('keypress', debounce(onKeyPressDebounced, 1000));
 	}
 
 	function onSocketMessage(evt) {
@@ -42,13 +48,41 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 
 		data.date = moment(data.date).format('MMMM Do YYYY, h:mm:ss a');
 		if (data.type === MessageTypeCode.MESSAGE) {
-			renderMessage(tmplMessage(data), 'message');
+			renderMessage(tmplMessage(data), 'message', data.client_id);
 		}
-		else if (data.type === MessageTypeCode.NOTIFICATION) {
-			renderMessage(tmplNotification(data), 'notif');
+		else if (data.type === MessageTypeCode.TYPING_START) {
+			renderMessage(tmplNotification(data), 'notif typing', data.client_id);
+		}
+		else if (data.type === MessageTypeCode.TYPING_STOP) {
+			removeMessage('typing', data.client_id);
+		}
+		else {
+			renderMessage(tmplNotification(data), 'notif', data.client_id);
 		}
 	}
 
+	function renderMessage(html, className, client_id) {
+		var li = document.createElement('li');
+
+		li.className = className;
+		li.dataset.client_id = client_id;
+		li.innerHTML = html;
+		listMsg.appendChild(li);
+		// Scroll to the bottom of list
+		listMsg.scrollTop = listMsg.scrollHeight;
+	}
+
+	function removeMessage(className, client_id) {
+		var query = '.' + className + '[data-client_id="' + client_id + '"]',
+			elem = document.querySelector(query);
+
+		if (elem && elem.parentNode) {
+			elem.parentNode.removeChild(elem);
+			return true;
+		}
+
+		return false;
+	}
 
 	function onBtnSendClick(evt) {
 		var message = {
@@ -62,13 +96,31 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 		txtMessage.focus();
 	}
 
-	function renderMessage(html, className) {
-		var li = document.createElement('li');
+	function onKeyPress(evt) {
+		if (isTyping) {
+			return false;
+		}
 
-		li.className = className;
-		li.innerHTML = html;
-		listMsg.appendChild(li);
-		// Scroll to the bottom of list
-		listMsg.scrollTop = listMsg.scrollHeight;
+		isTyping = true;
+
+		var message = {
+			type: MessageTypeCode.TYPING_START
+		};
+
+		socket.send(JSON.stringify(message));
+	}
+
+	function onKeyPressDebounced(evt) {
+		if (!isTyping) {
+			return false;
+		}
+
+		isTyping = false;
+
+		var message = {
+			type: MessageTypeCode.TYPING_STOP
+		};
+
+		socket.send(JSON.stringify(message));
 	}
 });
