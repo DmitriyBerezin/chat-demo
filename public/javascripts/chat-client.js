@@ -1,4 +1,9 @@
 
+var MessageTypeCode = {
+	MESSAGE: 'msg',
+	NOTIFICATION: 'notif'
+};
+
 document.addEventListener('DOMContentLoaded', function(evt) {
 	var btnSend = document.getElementById('btnSend'),
 		listMsg = document.querySelector('.messages-list'),
@@ -33,7 +38,15 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 	}
 
 	function onSocketMessage(evt) {
-		renderMessage(JSON.parse(evt.data));
+		var data = JSON.parse(evt.data);
+
+		console.log(data);
+		if (data.type === MessageTypeCode.MESSAGE) {
+			renderMessage(data);
+		}
+		else if (data.type === MessageTypeCode.NOTIFICATION) {
+			renderNotification(data);
+		}
 	}
 
 
@@ -49,10 +62,19 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 	}
 
 	function renderMessage(message) {
-		var html = window.message(message),
+		var html = tmplMessage(message),
 			li = document.createElement('li');
 
 		li.className = 'message';
+		li.innerHTML = html;
+		listMsg.appendChild(li);
+	}
+
+	function renderNotification(notification) {
+		var html = tmplNotification(notification),
+			li = document.createElement('li');
+
+		li.className = 'notif';
 		li.innerHTML = html;
 		listMsg.appendChild(li);
 	}
