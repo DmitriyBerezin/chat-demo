@@ -19,7 +19,11 @@ wsServer.on('connection', function(ws) {
 		messages.push(message);
 
 		for (var i = 0, l = clients.length; i < l; ++i) {
-			clients[i].send(JSON.stringify(message));
+			clients[i].send(JSON.stringify(message), function(err) {
+				if (err) {
+					console.log('Error us occured on message send');
+				}
+			});
 		}
 	});
 
