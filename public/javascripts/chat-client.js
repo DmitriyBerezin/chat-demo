@@ -1,6 +1,7 @@
 
 var socket = new WebSocket("ws://localhost:3001"),
 	btnSend = document.getElementById('btnSend'),
+	listMsg = document.querySelector('.messages-list'),
 	txtMessage = document.getElementById('txtMessage');
 
 btnSend.addEventListener('click', onBtnSendClick);
@@ -17,7 +18,12 @@ function onBtnSendClick(evt) {
 }
 
 function renderMessage(message) {
-	console.log(message);
+	var html = window.message(message),
+		li = document.createElement('li');
+
+	li.className = 'message';
+	li.innerHTML = html;
+	listMsg.appendChild(li);
 }
 
 socket.onmessage = function(evt) {

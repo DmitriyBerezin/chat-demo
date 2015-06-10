@@ -1,10 +1,3 @@
-mixin message(user, msg, time)
-	li.message
-		div.message-user= user
-		div.message-text= msg
-		div.message-time= time
-
-
 extends layout
 
 block content
@@ -12,9 +5,6 @@ block content
 
 	div.container
 		ul.messages-list
-			+message('user1', 'Message1', 'time1')
-			+message('user2', 'Message2', 'time2')
-			+message('user3', 'Message3', 'time3')
-
+		
 		input(type='text', id='txtMessage', placeholder='Input a message').message-input
 		button(type='button', id='btnSend').btn-send Send
