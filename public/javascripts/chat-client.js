@@ -90,16 +90,7 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 		txtMessage.focus();
 	}
 
-	function onBtnSendClick(evt) {
-		sendMessage();
-	}
-
-	function onKeyPress(evt) {
-		if (evt.which === 13) {
-			sendMessage();
-			return false;
-		}
-
+	function startTyping() {
 		if (isTyping) {
 			return false;
 		}
@@ -113,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 		socket.send(JSON.stringify(message));
 	}
 
-	function onKeyPressDebounced(evt) {
+	function stopTyping() {
 		if (!isTyping) {
 			return false;
 		}
@@ -125,5 +116,24 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 		};
 
 		socket.send(JSON.stringify(message));
+	}
+
+	function onBtnSendClick(evt) {
+		sendMessage();
+	}
+
+	function onKeyPress(evt) {
+		if (evt.which === 13) {
+			sendMessage();
+			stopTyping();
+			
+			return false;
+		}
+
+		return startTyping();
+	}
+
+	function onKeyPressDebounced(evt) {
+		stopTyping();
 	}
 });
