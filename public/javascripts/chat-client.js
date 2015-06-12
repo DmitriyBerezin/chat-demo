@@ -1,25 +1,18 @@
 
-var MessageTypeCode = {
-	MESSAGE: 'msg',
-	TYPING_START: 'start_typing',
-	TYPING_STOP: 'stop_typing',
-	JOIN: 'join',
-	LEAVE: 'leave'
-};
 
 document.addEventListener('DOMContentLoaded', function(evt) {
 	var btnSend = document.getElementById('btnSend'),
 		listMsg = document.querySelector('.messages-list'),
 		txtMessage = document.getElementById('txtMessage'),
+		host = location.origin.replace(/^http/, 'ws'),
 		isTyping = false,
 		socket;
 
 	if (!('WebSocket' in window || 'MozWebSocket' in window)) {
-		console.log('Sorry, but you browser doesn\'t support WebSockets. Please, think to update them.');
+		console.log('Sorry, but you browser doesn\'t support WebSockets. Please, update it.');
 		return;
 	}
 
-	var host = location.origin.replace(/^http/, 'ws');
 	socket = new WebSocket(host);
 	socket.onerror = onSocketError;
 	socket.onclose = onSocketClose;
@@ -28,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 
 
 	function onSocketError(evt) {
-		console.error('Error is occured during socket connection');
+		console.error('Error has occured in message sending');
 	}
 
 	function onSocketClose(evt) {
@@ -48,13 +41,13 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 		var data = JSON.parse(evt.data);
 
 		data.date = moment(data.date).format('MMMM Do YYYY, h:mm:ss a');
-		if (data.type === MessageTypeCode.MESSAGE) {
+		if (data.type === ChatApp.MessageTypeCode.MESSAGE) {
 			renderMessage(tmplMessage(data), 'message', data.client_id);
 		}
-		else if (data.type === MessageTypeCode.TYPING_START) {
+		else if (data.type === ChatApp.MessageTypeCode.TYPING_START) {
 			renderMessage(tmplNotification(data), 'notif typing', data.client_id);
 		}
-		else if (data.type === MessageTypeCode.TYPING_STOP) {
+		else if (data.type === ChatApp.MessageTypeCode.TYPING_STOP) {
 			removeMessage('typing', data.client_id);
 		}
 		else {
@@ -85,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 		return false;
 	}
 
-	function onBtnSendClick(evt) {
+	function sendMessage() {
 		var message = {
 			text: txtMessage.value,
 			date: new Date()
@@ -97,7 +90,16 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 		txtMessage.focus();
 	}
 
+	function onBtnSendClick(evt) {
+		sendMessage();
+	}
+
 	function onKeyPress(evt) {
+		if (evt.which === 13) {
+			sendMessage();
+			return false;
+		}
+
 		if (isTyping) {
 			return false;
 		}
@@ -105,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 		isTyping = true;
 
 		var message = {
-			type: MessageTypeCode.TYPING_START
+			type: ChatApp.MessageTypeCode.TYPING_START
 		};
 
 		socket.send(JSON.stringify(message));
@@ -119,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 		isTyping = false;
 
 		var message = {
-			type: MessageTypeCode.TYPING_STOP
+			type: ChatApp.MessageTypeCode.TYPING_STOP
 		};
 
 		socket.send(JSON.stringify(message));
