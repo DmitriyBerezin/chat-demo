@@ -19,7 +19,8 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 		return;
 	}
 
-	socket = new WebSocket("ws://localhost:3001");
+	var host = location.origin.replace(/^http/, 'ws');
+	socket = new WebSocket(host);
 	socket.onerror = onSocketError;
 	socket.onclose = onSocketClose;
 	socket.onopen = onSocketOpen;
