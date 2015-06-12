@@ -1,12 +1,14 @@
 var util = require('util'),
+	faker = require('faker'),
 	WebSocketServer = new require('ws'),
 	wsServer;
 
-function sendToClients(clients, text, type, client_id) {
+function sendToClients(clients, text, type, client_id, client_name) {
 	var message = {
 		type: type,
 		text: text,
 		client_id: client_id,
+		client_name: client_name,
 		date: new Date()
 	};
 
@@ -37,29 +39,30 @@ module.exports = {
 
 		wsServer.on('connection', function(ws) {
 			var id = clients.push(ws) - 1,
-				text = util.format('%s join chat room', id);
+				name = faker.name.findName(),
+				text = util.format('%s join chat room', name);
 
-			sendToClients(clients, text, 'join', id);
+			sendToClients(clients, text, 'join', id, name);
 
 			ws.on('message', function(data) {
 				var message = JSON.parse(data);
 
 				if (message.type === 'start_typing') {
-					var text = util.format('%s is typing', id);
-					sendToClients(clients, text, 'start_typing', id);
+					var text = util.format('%s is typing', name);
+					sendToClients(clients, text, 'start_typing', id, name);
 				}
 				else if (message.type === 'stop_typing') {
-					sendToClients(clients, null, 'stop_typing', id);
+					sendToClients(clients, null, 'stop_typing', id, name);
 				}
 				else {
-					var msg = sendToClients(clients, message.text, 'msg', id);
+					var msg = sendToClients(clients, message.text, 'msg', id, name);
 					messages.push(msg);
 				}
 			});
 
 			ws.on('close', function() {
-				var text = util.format('%s leave chat room', id);
-				sendToClients(clients, text, 'leave', id);
+				var text = util.format('%s leave chat room', name);
+				sendToClients(clients, text, 'leave', id, name);
 
 				clients.splice(id, 1);
 			});
