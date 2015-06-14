@@ -4,12 +4,13 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 	var btnSend = document.getElementById('btnSend'),
 		listMsg = document.querySelector('.messages-list'),
 		txtMessage = document.getElementById('txtMessage'),
+		errorMessage = document.querySelector('.error-message'),
 		host = location.origin.replace(/^http/, 'ws'),
 		isTyping = false,
 		socket;
 
 	if (!('WebSocket' in window || 'MozWebSocket' in window)) {
-		console.log('Sorry, but you browser doesn\'t support WebSockets. Please, update it.');
+		showError('Sorry, but you browser doesn\'t support WebSockets. Please, update it.');
 		return;
 	}
 
@@ -21,12 +22,12 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 
 
 	function onSocketError(evt) {
-		console.error('Error has occured in message sending');
+		showError('Error has occured in message sending');
 	}
 
 	function onSocketClose(evt) {
 		if (evt.code !== 1000) {
-			console.log('Socket was closed abnormally. The reason is: ', evt.reason);
+			showError('Socket was closed abnormally. The reason is: ' + evt.reason + '. Please, try to refresh page.');
 		}
 	}
 
@@ -88,6 +89,10 @@ document.addEventListener('DOMContentLoaded', function(evt) {
 
 		txtMessage.value = '';
 		txtMessage.focus();
+	}
+
+	function showError(errMsg) {
+		errorMessage.innerHTML = errMsg;
 	}
 
 	function startTyping() {
