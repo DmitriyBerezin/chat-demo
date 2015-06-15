@@ -1,3 +1,5 @@
+'use strict';
+
 var chatServer = require('./chat-server'),
 	WebSocketServer = new require('ws'),
 	wsServer;

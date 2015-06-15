@@ -16,9 +16,8 @@ var ChatApp = (function(app) {
 		};
 	}
 	else {
-		return {
-			MessageTypeCode: MessageTypeCode
-		};
+		app.MessageTypeCode = MessageTypeCode;
+		return app;
 	}
 
 }(ChatApp || {}));

@@ -1,3 +1,5 @@
+'use strict';
+
 var util = require('util'),
 	faker = require('faker'),
 	msgTypes = require('./public/javascripts/messages-types'),

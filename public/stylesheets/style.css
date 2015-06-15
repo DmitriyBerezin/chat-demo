@@ -100,7 +100,7 @@ a {
 	color: #a94442;
 	background-color: #f2dede;
 	border-color: #ebccd1;
-	display: inline-block;
+	display: none;
 	margin: 10px 0;
 	padding: 10px;
 	border-radius: 5px;
